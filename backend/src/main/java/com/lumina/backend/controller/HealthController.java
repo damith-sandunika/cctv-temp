@@ -2,14 +2,14 @@ package com.lumina.backend.controller;
 
 import com.lumina.backend.dto.response.HealthResponse;
 import lombok.RequiredArgsConstructor;
-import org.bson.Document;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,18 +20,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class HealthController {
 
-    private final MongoTemplate mongoTemplate;
+    private final DataSource dataSource;
 
     @GetMapping
     public ResponseEntity<HealthResponse> checkHealth() {
         Map<String, Object> details = new HashMap<>();
         String dbStatus = "UNKNOWN";
 
-        try {
-            Document pingResult = mongoTemplate.getDb().runCommand(new Document("ping", 1));
-            if (pingResult.containsKey("ok") && ((Number) pingResult.get("ok")).intValue() == 1) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection.isValid(2)) {
                 dbStatus = "CONNECTED";
-                details.put("databaseName", mongoTemplate.getDb().getName());
+                details.put("databaseProduct", connection.getMetaData().getDatabaseProductName());
+                details.put("databaseVersion", connection.getMetaData().getDatabaseProductVersion());
             } else {
                 dbStatus = "DEGRADED";
             }

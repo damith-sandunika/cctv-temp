@@ -1,14 +1,12 @@
 package com.lumina.backend.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -18,31 +16,44 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
+@Entity
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
 public class User {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Indexed(unique = true)
+    @Column(nullable = false, unique = true, length = 60)
     private String username;
 
-    @Indexed(unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(length = 100)
     private String fullName;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
     @Builder.Default
     private Set<String> roles = new HashSet<>();
 
     @Builder.Default
+    @Column(nullable = false)
     private boolean enabled = true;
 
-    @CreatedDate
+    @CreationTimestamp
+    @Column(updatable = false)
     private Instant createdAt;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     private Instant updatedAt;
 }

@@ -1,7 +1,7 @@
 # Lumina Project: 5-Member Work Breakdown, Git Strategy & Code Review Guide
 
 > **Project Name:** SL Solutions - Service & Inventory Management Portal (Lumina)  
-> **Architecture:** Spring Boot 3.x (Java 17) + React 19 / Vite + Tailwind CSS + MongoDB  
+> **Architecture:** Spring Boot 3.x (Java 17) + React 19 / Vite + Tailwind CSS + PostgreSQL  
 > **Code Modularization Status:** All components refactored into micro-components (< 50-60 lines each). 0 lint warnings, 0 build errors.
 
 ---
@@ -153,19 +153,19 @@ Each team member is assigned a dedicated functional domain and isolated files to
   - `backend/src/main/java/com/lumina/backend/security/*`
   - `backend/src/main/resources/application.properties`
 - **Key Responsibilities:**
-  - Spring Boot 3 REST API, JWT filter, password encryption (BCrypt), MongoDB connections, demo database seeding (`DataInitializer`), test endpoints for role permissions.
+  - Spring Boot 3 REST API, JWT filter, password encryption (BCrypt), PostgreSQL database connection & Hibernate JPA, demo database seeding (`DataInitializer`), test endpoints for role permissions.
 - **Git Push Command Example:**
   ```bash
   git checkout -b feature/backend-api-services
   git add backend/
-  git commit -m "feat(backend): configure Spring Security JWT, role enum, and MongoDB seeding"
+  git commit -m "feat(backend): configure Spring Security JWT, role enum, and PostgreSQL seeding"
   git push origin feature/backend-api-services
   ```
 - **Code Review Defense:**
   - *Examiner asks:* "Where are the demo usernames and passwords configured?"
   - *Answer:* Open `backend/src/main/java/com/lumina/backend/config/DataInitializer.java`.
   - *Examiner asks:* "Where is the JWT token expiration configured?"
-  - *Answer:* Open `backend/src/main/resources/application.properties` line 12.
+  - *Answer:* Open `backend/src/main/resources/application.properties` line 18.
 
 ---
 
@@ -196,9 +196,9 @@ Every member must install the following software on their Windows / Mac / Linux 
   java -version   # Should show openjdk version "17.0.x"
   ```
 
-### Step 4: Install MongoDB Community & MongoDB Compass (For Member 5 & Backend)
-- Download: [https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
-- Default connection string: `mongodb://localhost:27017/lumina_db`
+### Step 4: Install PostgreSQL & pgAdmin 4 (For Member 5 & Backend)
+- Download: [https://www.postgresql.org/download/](https://www.postgresql.org/download/)
+- Default connection string: `jdbc:postgresql://localhost:5432/lumina_db`
 
 ### Step 5: Install VS Code & Recommended Extensions
 - Extensions to install:
@@ -298,7 +298,7 @@ If the examiner asks you to modify code on the spot during review, here is the c
 | **"Add or remove a feature card on login screen"** | `src/components/auth/hero/LoginHeroFeatureCards.tsx` | Lines 4-9: `FEATURES` array |
 | **"Change page title or category badge"** | `src/components/common/PageTitleSection.tsx` | Used across all pages with `title`, `badge`, `subtitle` props |
 | **"Change seed user accounts or passwords"** | `backend/.../config/DataInitializer.java` | Lines 25-55: edit `client123`, `tech123`, etc. |
-| **"Change port or database connection string"** | `backend/src/main/resources/application.properties` | Lines 3 & 7: `server.port=8080`, `spring.data.mongodb.uri` |
+| **"Change port or database connection string"** | `backend/src/main/resources/application.properties` | Lines 3 & 6: `server.port=8080`, `spring.datasource.url` |
 | **"Allow or change user roles"** | `src/types/auth.ts` & `backend/.../model/ERole.java` | 4 roles: `ROLE_CLIENT`, `ROLE_ADMIN`, `ROLE_TECHNICIAN`, `ROLE_SUPER_ADMIN` |
 
 ---
